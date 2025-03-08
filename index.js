@@ -3,6 +3,9 @@ const { Client, GatewayIntentBits, REST, Routes } = require("discord.js");
 const { token, clientId, guildId } = require("./config/config");
 const registerCommands = require("./handlers/commandHandler");
 const registerEvents = require("./handlers/eventHandler");
+const connectDatabase = require("./database/db");
+
+connectDatabase();
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates],
@@ -33,6 +36,6 @@ const rest = new REST({ version: "10" }).setToken(token);
 
     console.log("Slash commands registered successfully!");
   } catch (error) {
-    console.error("Error registering commands: ", e);
+    console.error("Error registering commands: ", error);
   }
 })();

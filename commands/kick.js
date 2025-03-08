@@ -19,6 +19,13 @@ module.exports = {
     const targetUser = interaction.options.getUser("user");
     const userVC = interaction.member.voice.channel;
 
+    if (targetUser.id === interaction.member.user.id) {
+      return interaction.reply({
+        content: "You cannot kick yourself from your own VC!",
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
     try {
       if (userVC.members.has(targetUser.id)) {
         const memberToKick = await interaction.guild.members.fetch(

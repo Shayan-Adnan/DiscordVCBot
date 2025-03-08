@@ -10,7 +10,6 @@ module.exports = {
         .setDescription("The region the VC will be changed to.")
         .setRequired(true)
         .addChoices(
-          { name: "Dubai", value: "dubai" },
           { name: "US West", value: "us-west" },
           { name: "Brazil", value: "brazil" },
           { name: "Hong Kong", value: "hongkong" },
@@ -36,11 +35,14 @@ module.exports = {
     try {
       await userVC.setRTCRegion(region);
       interaction.reply({
-        content: `Set VC region to ${interaction.options.get("region").name}`,
+        content: `Set VC region to ${region}`,
       });
     } catch (error) {
       console.error("Error changing VC region: ", error);
-      interaction.reply({ content: "Failed to change VC region." });
+      interaction.reply({
+        content: "Failed to change VC region.",
+        flags: MessageFlags.Ephemeral,
+      });
     }
   },
 };

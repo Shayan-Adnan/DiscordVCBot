@@ -1,5 +1,5 @@
-const { createdChannels } = require("../utils/channelManager");
 const { MessageFlags } = require("discord.js");
+const CreatedChannels = require("../models/createdChannels");
 
 module.exports = {
   name: "interactionCreate",
@@ -8,12 +8,18 @@ module.exports = {
 
     const userVC = interaction.member.voice.channel;
 
-    if (
-      !userVC ||
-      userVC.id != createdChannels.get(interaction.member.user.username)
-    ) {
+    if (!userVC) {
       return interaction.reply({
-        content: "You must be in a custom VC to use this command!",
+        content: "You must be in a voice channel to use this command!",
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
+    const inACustomVC = await CreatedChannels.findOne({ channelId: userVC.id });
+
+    if (!inACustomVC) {
+      return interaction.reply({
+        content: "You must be in a custom voice channel to use this command!",
         flags: MessageFlags.Ephemeral,
       });
     }

@@ -6,4 +6,5 @@ module.exports = {
   joinToCreateChannelId: process.env.VOICE_CHANNEL_ID,
   activeCategoryId: process.env.ACTIVE_CATEGORY_ID,
   archivedCategoryId: process.env.ARCHIVED_CATEGORY_ID,
+  dbConnectionString: process.env.MONGO_URI,
 };
