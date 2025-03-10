@@ -34,6 +34,8 @@ const rest = new REST({ version: "10" }).setToken(token);
       body: commands,
     });
 
+    client.commands.set([]);
+
     console.log("Slash commands registered successfully!");
   } catch (error) {
     console.error("Error registering commands: ", error);

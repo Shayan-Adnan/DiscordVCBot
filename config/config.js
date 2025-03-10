@@ -7,4 +7,5 @@ module.exports = {
   activeCategoryId: process.env.ACTIVE_CATEGORY_ID,
   archivedCategoryId: process.env.ARCHIVED_CATEGORY_ID,
   dbConnectionString: process.env.MONGO_URI,
+  notificationChannelId: process.env.NOTIFICATION_CHANNEL_ID,
 };

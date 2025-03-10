@@ -4,6 +4,8 @@ const {
   MessageFlags,
 } = require("discord.js");
 
+const { notificationChannelId } = require("../config/config");
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("allow")
@@ -19,6 +21,9 @@ module.exports = {
     const targetUser = interaction.options.getUser("user");
     const userVC = interaction.member.voice.channel;
     const userTextChannel = interaction.channel;
+    const notificationChannel = interaction.guild.channels.cache.get(
+      notificationChannelId
+    );
 
     try {
       const currentPermissions = userVC.permissionOverwrites.resolve(
@@ -41,7 +46,7 @@ module.exports = {
         flags: MessageFlags.Ephemeral,
       });
 
-      userTextChannel.send(
+      notificationChannel?.send(
         `${targetUser} You have been allowed in ${interaction.member.user.username}'s VC!`
       );
     } catch (error) {

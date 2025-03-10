@@ -73,19 +73,52 @@ module.exports = {
       if (isACustomVC && oldChannel?.members.size === 0) {
         try {
           archiveChannel(oldChannel, guild);
-
-          //when user's custom vc in in the archived category, open join-to-create channel for them
-          await joinToCreateChannel.permissionOverwrites.edit(user.id, {
-            [PermissionsBitField.Flags.Connect]: true,
-          });
         } catch (error) {
           console.error("Error archiving channel: ", error);
         }
       }
+
+      const isInTheirOwnVC = await CreatedChannels.findOne({
+        channelId: newState.channelId,
+        userId: user.id,
+      });
+
+      if (!isInTheirOwnVC) {
+        try {
+          console.log(
+            `Removing voice channel permissions for ${user.username} for join-to-create channel`
+          );
+
+          await joinToCreateChannel.permissionOverwrites.delete(user.id);
+        } catch (error) {
+          console.error(
+            `Error unlocking join to create for ${user.username}`,
+            error
+          );
+        }
+      }
     }
 
-    if (!newState.channelId || newState.channelId != joinToCreateChannelId)
+    if (!newState.channelId) return;
+
+    if (newState.channelId !== joinToCreateChannelId) {
+      const returnedToTheirOwnChannel = await CreatedChannels.findOne({
+        channelId: newState.channelId,
+        userId: user.id,
+      });
+
+      if (returnedToTheirOwnChannel) {
+        console.log(
+          `Locking join-to-create channel for ${user.username} (they returned to their own channel)`
+        );
+
+        await joinToCreateChannel.permissionOverwrites.edit(user.id, {
+          [PermissionsBitField.Flags.Connect]: false,
+        });
+      }
+
       return;
+    }
 
     try {
       const existingChannelEntry = await CreatedChannels.findOne({
@@ -103,6 +136,8 @@ module.exports = {
           await newState.member.voice.setChannel(existingChannel);
 
           //when a user's custom vc in in the active category, lock join-to-create channel for them
+
+          console.log(`Locking join-to-create channel for ${user.username}`);
 
           return await joinToCreateChannel.permissionOverwrites.edit(user.id, {
             [PermissionsBitField.Flags.Connect]: false,
@@ -123,11 +158,17 @@ module.exports = {
       console.log(`Added new channel to database (for ${user.username})`);
 
       await newState.member.voice.setChannel(newChannel);
+
+      await joinToCreateChannel.permissionOverwrites.edit(user.id, {
+        [PermissionsBitField.Flags.Connect]: false,
+      });
     } catch (error) {
       console.error("Error creating voice channel: ", error);
 
       //if someone joins join-to-create channel but leaves too quickly
-      if (error.rawError.message === "Target user is not connected to voice.") {
+      if (
+        error.rawError?.message === "Target user is not connected to voice."
+      ) {
         try {
           const existingChannelEntry = await CreatedChannels.findOne({
             userId: user.id,
@@ -154,3 +195,8 @@ module.exports = {
     }
   },
 };
+
+//when user's custom vc in in the archived category, open join-to-create channel for them
+// await joinToCreateChannel.permissionOverwrites.edit(user.id, {
+//   [PermissionsBitField.Flags.Connect]: true,
+// });
