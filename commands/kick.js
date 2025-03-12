@@ -4,6 +4,8 @@ const {
   MessageFlags,
 } = require("discord.js");
 
+const CreatedChannels = require("../models/createdChannels");
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("kick")
@@ -16,8 +18,14 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    //const userVC = interaction.member.voice.channel;
+    const userId = interaction.member.user.id;
     const targetUser = interaction.options.getUser("user");
-    const userVC = interaction.member.voice.channel;
+
+    const userCustomVC = await CreatedChannels.findOne({ userId });
+    const userVC = await interaction.guild.channels.cache.get(
+      userCustomVC.channelId
+    );
 
     if (targetUser.id === interaction.member.user.id) {
       return interaction.reply({

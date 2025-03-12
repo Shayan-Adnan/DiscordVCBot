@@ -6,20 +6,13 @@ module.exports = {
   async execute(interaction) {
     if (!interaction.isCommand()) return;
 
-    const userVC = interaction.member.voice.channel;
+    const userId = interaction.member.user.id;
 
-    if (!userVC) {
+    const ownsACustomVC = await CreatedChannels.findOne({ userId });
+
+    if (!ownsACustomVC) {
       return interaction.reply({
-        content: "You must be in a voice channel to use this command!",
-        flags: MessageFlags.Ephemeral,
-      });
-    }
-
-    const inACustomVC = await CreatedChannels.findOne({ channelId: userVC.id });
-
-    if (!inACustomVC) {
-      return interaction.reply({
-        content: "You must be in a custom voice channel to use this command!",
+        content: "You must own a custom voice channel to use this command!",
         flags: MessageFlags.Ephemeral,
       });
     }
@@ -34,3 +27,21 @@ module.exports = {
     }
   },
 };
+
+// const userVC = interaction.member.voice.channel;
+
+// if (!userVC) {
+//   return interaction.reply({
+//     content: "You must be in a voice channel to use this command!",
+//     flags: MessageFlags.Ephemeral,
+//   });
+// }
+
+// const inACustomVC = await CreatedChannels.findOne({ channelId: userVC.id });
+
+// if (!inACustomVC) {
+//   return interaction.reply({
+//     content: "You must be in a custom voice channel to use this command!",
+//     flags: MessageFlags.Ephemeral,
+//   });
+// }

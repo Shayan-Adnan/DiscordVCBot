@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
+const CreatedChannels = require("../models/createdChannels");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -14,8 +15,14 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    const userVC = interaction.member.voice.channel;
+    // const userVC = interaction.member.voice.channel;
+    const userId = interaction.member.user.id;
     const limit = interaction.options.getInteger("limit");
+
+    const userCustomVC = await CreatedChannels.findOne({ userId });
+    const userVC = await interaction.guild.channels.cache.get(
+      userCustomVC.channelId
+    );
 
     if (limit < 0 || limit > 99) {
       return interaction.reply({

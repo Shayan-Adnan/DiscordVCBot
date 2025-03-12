@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, MessageFlags } = require("discord.js");
+const CreatedChannels = require("../models/createdChannels");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -29,8 +30,14 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    // const userVC = interaction.member.voice.channel;
+    const userId = interaction.member.user.id;
+    const userCustomVC = await CreatedChannels.findOne({ userId });
+
+    const userVC = await interaction.guild.channels.cache.get(
+      userCustomVC.channelId
+    );
     const region = interaction.options.get("region").value;
-    const userVC = interaction.member.voice.channel;
 
     try {
       await userVC.setRTCRegion(region);

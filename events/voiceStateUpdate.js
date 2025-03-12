@@ -72,29 +72,12 @@ module.exports = {
 
       if (isACustomVC && oldChannel?.members.size === 0) {
         try {
-          archiveChannel(oldChannel, guild);
+          await archiveChannel(oldChannel, guild);
+          await joinToCreateChannel.permissionOverwrites.delete(
+            isACustomVC.userId
+          );
         } catch (error) {
           console.error("Error archiving channel: ", error);
-        }
-      }
-
-      const isInTheirOwnVC = await CreatedChannels.findOne({
-        channelId: newState.channelId,
-        userId: user.id,
-      });
-
-      if (!isInTheirOwnVC) {
-        try {
-          console.log(
-            `Removing voice channel permissions for ${user.username} for join-to-create channel`
-          );
-
-          await joinToCreateChannel.permissionOverwrites.delete(user.id);
-        } catch (error) {
-          console.error(
-            `Error unlocking join to create for ${user.username}`,
-            error
-          );
         }
       }
     }
@@ -200,3 +183,23 @@ module.exports = {
 // await joinToCreateChannel.permissionOverwrites.edit(user.id, {
 //   [PermissionsBitField.Flags.Connect]: true,
 // });
+
+// const isInTheirOwnVC = await CreatedChannels.findOne({
+//   channelId: newState.channelId,
+//   userId: user.id,
+// });
+
+// if (!isInTheirOwnVC) {
+//   try {
+//     console.log(
+//       `Removing voice channel permissions for ${user.username} for join-to-create channel`
+//     );
+
+//     await joinToCreateChannel.permissionOverwrites.delete(user.id);
+//   } catch (error) {
+//     console.error(
+//       `Error unlocking join to create for ${user.username}`,
+//       error
+//     );
+//   }
+// }
